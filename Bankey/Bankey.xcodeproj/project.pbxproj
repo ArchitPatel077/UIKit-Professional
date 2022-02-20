@@ -58,8 +58,8 @@
 		7391704F27C09CA800E23056 /* Bankey */ = {
 			isa = PBXGroup;
 			children = (
-				739170A027C1FBB700E23056 /* Onboarding */,
 				7391706427C09F6900E23056 /* Files */,
+				739170A027C1FBB700E23056 /* Onboarding */,
 				7391706527C09FA900E23056 /* Login */,
 				7391705027C09CA800E23056 /* AppDelegate.swift */,
 			);
