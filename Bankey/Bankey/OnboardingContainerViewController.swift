@@ -47,7 +47,6 @@ class OnboardingContainerViewController : UIViewController{
         setup()
         style()
         layout()
-        
     }
     
     private func setup() {
@@ -88,9 +87,7 @@ class OnboardingContainerViewController : UIViewController{
             closeButton.leadingAnchor.constraint(equalToSystemSpacingAfter: view.leadingAnchor, multiplier: 2),
             closeButton.topAnchor.constraint(equalToSystemSpacingBelow: view.safeAreaLayoutGuide.topAnchor, multiplier: 2)
         ])
-        
     }
-    
 }
     
     // MARK: - UIPageViewControllerDataSource
@@ -123,10 +120,8 @@ extension OnboardingContainerViewController: UIPageViewControllerDataSource {
     
     func presentationIndex(for pageViewController: UIPageViewController) -> Int {
         return pages.firstIndex(of: currentVC) ?? 0
-    }    
-
+    }
 }
-
 
 // MARK: - Actions
 

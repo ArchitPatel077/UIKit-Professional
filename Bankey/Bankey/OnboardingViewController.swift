@@ -18,7 +18,6 @@ class OnboardingViewController : UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         style()
         layout()
     }
@@ -57,9 +56,7 @@ extension OnboardingViewController {
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
         label.text = titleText
-        
     }
-    
     
     func layout() {
         
@@ -68,14 +65,12 @@ extension OnboardingViewController {
         
         view.addSubview(stackView)
         
-        
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stackView.leadingAnchor.constraint(equalToSystemSpacingAfter: view.leadingAnchor, multiplier: 1),
             view.trailingAnchor.constraint(equalToSystemSpacingAfter: stackView.trailingAnchor, multiplier: 1)
         ])
-        
     }
 }
 
