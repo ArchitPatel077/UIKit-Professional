@@ -30,13 +30,13 @@ extension AccountSummaryViewController {
         let url = URL(string: "https://fierce-retreat-36855.herokuapp.com/bankey/profile/\(userId)")!
 
         URLSession.shared.dataTask(with: url) { data, response, error in
-            
+
             DispatchQueue.main.async {
                 guard let data = data, error == nil else {
                     completion(.failure(.serverError))
                     return
                 }
-                
+
                 do {
                     let profile = try JSONDecoder().decode(Profile.self, from: data)
                     completion(.success(profile))
@@ -55,6 +55,10 @@ struct Account: Codable {
     let name: String
     let amount: Decimal
     let createdDateTime: Date
+    
+    static func makeSkeleton() -> Account {
+           return Account(id: "1", type: .Banking, name: "Account name", amount: 0.0, createdDateTime: Date())
+       }
 }
 
 extension AccountSummaryViewController {

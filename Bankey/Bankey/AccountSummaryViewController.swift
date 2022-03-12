@@ -23,6 +23,7 @@ class AccountSummaryViewController: UIViewController {
     var headerView = AccountSummaryHeaderView(frame: .zero)
     let refreshControl = UIRefreshControl()
 
+    var isLoaded = false
     
     lazy var logoutBarButtonItem: UIBarButtonItem = {
         let barButtonItem = UIBarButtonItem(title: "Logout", style: .plain, target: self, action: #selector(logoutTapped))
@@ -43,6 +44,7 @@ extension AccountSummaryViewController {
         setupTableHeaderView()
         setupRefreshControl()
         fetchData()
+        setupSkeletons()
         setupNavigationBar()
     }
     
@@ -52,6 +54,7 @@ extension AccountSummaryViewController {
         tableView.dataSource = self
         
         tableView.register(AccountSummaryCell.self, forCellReuseIdentifier: AccountSummaryCell.reuseID)
+        tableView.register(SkeletonCell.self, forCellReuseIdentifier: SkeletonCell.reuseID)
         tableView.rowHeight = AccountSummaryCell.rowHeight
         tableView.tableFooterView = UIView()
         
@@ -84,19 +87,32 @@ extension AccountSummaryViewController {
         refreshControl.addTarget(self, action: #selector(refreshContent), for: .valueChanged)
         tableView.refreshControl = refreshControl
     }
+    
+    private func setupSkeletons() {
+        let row = Account.makeSkeleton()
+               accounts = Array(repeating: row, count: 10)
+               
+               configureTableCells(with: accounts)
+    }
 }
 
 extension AccountSummaryViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard !accountCellViewModels.isEmpty else {return UITableViewCell()}
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: AccountSummaryCell.reuseID, for: indexPath) as! AccountSummaryCell
-        let account = accountCellViewModels[indexPath.row]
-        cell.configure(with: account)
-        return cell
-    }
+         guard !accountCellViewModels.isEmpty else { return UITableViewCell() }
+         let account = accountCellViewModels[indexPath.row]
+
+         if isLoaded {
+             let cell = tableView.dequeueReusableCell(withIdentifier: AccountSummaryCell.reuseID, for: indexPath) as! AccountSummaryCell
+             cell.configure(with: account)
+             return cell
+         }
+         
+         let cell = tableView.dequeueReusableCell(withIdentifier: SkeletonCell.reuseID, for: indexPath) as! SkeletonCell
+         return cell
+     }
     
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return accountCellViewModels.count
     }
@@ -137,7 +153,7 @@ extension AccountSummaryViewController {
                 self.profile = profile
                 self.configureTableHeaderView(with: profile)
             case .failure(let error):
-                print(error.localizedDescription)
+                self.displayError(error)
             }
             group.leave()
         }
@@ -149,12 +165,13 @@ extension AccountSummaryViewController {
                 self.accounts = accounts
                 self.configureTableCells(with: accounts)
             case .failure(let error):
-                print(error.localizedDescription)
+                self.displayError(error)
             }
             group.leave()
         }
         
         group.notify(queue: .main) {
+            self.isLoaded = true
             self.tableView.reloadData()
             self.tableView.refreshControl?.endRefreshing()
         }
@@ -173,5 +190,31 @@ extension AccountSummaryViewController {
                                          accountName: $0.name,
                                          balance: $0.amount)
         }
+    }
+    
+    private func displayError(_ error: NetworkError) {
+        let title: String
+        let message: String
+        switch error {
+        case .serverError:
+            title = "Server Error"
+            message = "Ensure you are connected to the internet. Please try again."
+//                    self.showErrorAlert(title: "Server Error", message: "Ensure you are connected to the internet. Please try again.")
+        case .decodingError:
+            title = "Decoding Error"
+            message =  "we could not process your request. Please try again."
+//                    self.showErrorAlert(title: "Decoding Error", message: "we could not process your request. Please try again.")
+        }
+        self.showErrorAlert(title: title, message: message)
+    }
+    
+    private func showErrorAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title,
+                                      message: message,
+                                      preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        
+        present(alert, animated: true, completion: nil)
     }
 }
